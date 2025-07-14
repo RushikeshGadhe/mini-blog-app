@@ -1,23 +1,33 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import BlogList from './components/BlogList';
+import BlogDetail from './components/BlogDetail';
+import SearchBar from './components/SearchBar';
 
 function App() {
+  const [blogs, setBlogs] = useState([]);
+  const [selectedBlog, setSelectedBlog] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    fetch('https://jsonplaceholder.typicode.com/posts')
+      .then(res => res.json())
+      .then(data => setBlogs(data))
+      .catch(err => console.error('Error fetching:', err));
+  }, []);
+
+  const filteredBlogs = blogs.filter(blog =>
+    blog.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div style={{ padding: '20px', fontFamily: 'Arial' }}>
+      <h1>📝 Mini Blog App</h1>
+      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      {selectedBlog ? (
+        <BlogDetail blog={selectedBlog} onBack={() => setSelectedBlog(null)} />
+      ) : (
+        <BlogList blogs={filteredBlogs} onSelectBlog={setSelectedBlog} />
+      )}
     </div>
   );
 }
